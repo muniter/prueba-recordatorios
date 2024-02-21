@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>MarketPlace Recreción!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+  <script src="https://unpkg.com/mithril/mithril.min.js"></script>
+  <script>
+    if (window.location.toString().includes('clear')) {
+      localStorage.clear()
+    }
+
+    const faces = ['ZPGUKG1CJY.jpg', 'ZPL6GVT7WK.jpg', 'ZPNELKI9CW.jpg', 'ZQ0G6SQ0OV.jpg', 'ZQAIW1AENT.jpg', 'ZQG3HE5ABF.jpg', 'ZQO21VYO81.jpg', 'ZR6EQV59X0.jpg', 'ZRBI9SIQSE.jpg', 'ZRLCE1VORS.jpg', 'ZRP4EUI3DN.jpg', 'ZRP782H9MH.jpg', 'ZRPFVHRRLT.jpg', 'ZRPJRL2EHM.jpg', 'ZRZMX95RCJ.jpg', 'ZS3C2GRWXI.jpg', 'ZSLUW5WRZ6.jpg', 'ZSM6OSXQ38.jpg', 'ZSS4NNL134.jpg', 'ZTEUEENMRK.jpg']
+
+    const picked = new Map()
+
+    function sendWebhook(data)
+    {
+      fetch('https://webhook.site/14492285-5f80-4679-9332-9eed6cf059c4', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({data})
+      })
+    }
+
+    function pickFace() {
+      const index = Math.floor(Math.random() * faces.length)
+      if (picked.has(index)) {
+        return pickFace()
+      }
+      picked.set(index, true)
+      return faces[index]
+    }
+
+    function onclick(el) {
+      console.log(el.target)
+      const verified = el.target.closest('[data-verified]') !== null
+
+      // Ya antes ha completado
+      if (localStorage.getItem('completed')) {
+        alert('Ya has seleccionado un recreacionista!')
+        return
+      }
+
+      // Completado
+      sendWebhook({verified, urlParams: window.location.toString()})
+      alert('Gracias por seleccionar un recreacionista, ha terminado el proceso! Muchas gracias')
+      localStorage.setItem('completed', true)
+      window.location = 'https://www.google.com'
+    }
+
+    function renderCard(verified) {
+      const checkMark = m('i', {class: 'bi bi-patch-check-fill', style: 'color: green;'})
+      return m('div', {class: 'card m-1', style: 'width: 12rem;', 'data-verified': verified, onclick, role: 'button'}, [
+        m('img', {src: 'images/' + pickFace(), class: 'card-img-left', alt: '...'}),
+        m('div', {class: 'card-body'}, [
+          m('h5', {class: 'card-title'}, 'Recredor Profesional   ', verified ? checkMark : ''),
+          m('p', {class: 'card-text'}, 'Conoce más de mis servicios!'),
+          m('button', {class: 'btn btn-primary', onclick}, 'Ver más')
+        ])
+      ])
+    }
+
+    m.mount(
+      document.body,
+      {
+        view: function () {
+          return m('div', {class: 'container overflow-hidden'}, [
+            m('h1', {class: 'text-center'}, 'Welcome to MarketPlace Recreación!'),
+            m('h3', {class: 'text-center'}, 'Selecciona uno de los recreacionistas a continuación!'),
+            m('div', {class: 'd-flex flex-wrap justify-content-center'}, [
+              Array(20).fill(2).map(function (_, index) {
+                return renderCard(Math.random() > 0.5)
+              })
+            ])
+          ])
+        }
+      }
+    )
+
+  </script>
+</body>
+
+</html>
