@@ -10,6 +10,7 @@
 
 <body>
   <script src="https://unpkg.com/mithril/mithril.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     if (window.location.toString().includes('clear')) {
       localStorage.clear()
@@ -45,15 +46,28 @@
 
       // Ya antes ha completado
       if (localStorage.getItem('completed')) {
-        alert('Ya has seleccionado un recreacionista!')
+        Swal.fire({
+          title: 'Ya has completado el proceso, no lo puedo hacer dos veces!',
+          text: 'Gracias por participar!',
+          icon: 'warning',
+          confirmButtonText: 'Ok'
+        }).then(() => {
+          window.location = 'https://www.google.com'
+        })
         return
       }
 
       // Completado
       sendWebhook({verified, urlParams: window.location.toString()})
-      alert('Gracias por seleccionar un recreacionista, ha terminado el proceso! Muchas gracias')
       localStorage.setItem('completed', true)
-      window.location = 'https://www.google.com'
+      Swal.fire({
+        title: 'Gracias por participar!',
+        text: 'Has completado el proceso!',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      }).then(() => {
+        window.location = 'https://www.google.com'
+      })
     }
 
     function renderCard(verified) {
